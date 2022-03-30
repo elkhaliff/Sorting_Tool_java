@@ -16,6 +16,7 @@ public class Main {
             }
         }
         SortingSystem sortSys = new SortingSystem(dataType, sortingType);
+        sortSys.getData();
         sortSys.sort();
     }
 }
