@@ -1,78 +1,165 @@
 package sorting;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SortingSystem {
-    static void sort(String typeSort, boolean sortIntegers) {
-        var max = "";
-        int percent;
-        var sep = " ";
-        var count = 0;
-        var size = 0;
+    final String LONG = "long";
+    final String LINE = "line";
+    final String WORD = "word";
 
-        final var LONG = "long";
-        final var LINE = "line";
-        final var WORD = "word";
+    final String NATURAL = "natural";
+//    final String BY_COUNT = "byCount";
 
-        if (sortIntegers) typeSort = LONG;
+    private String sep;
+    private String type;
 
+    private final String dataType;
+    private final String sortingType;
+
+    private List list;
+    private Map map;
+
+    public SortingSystem(String dataType, String sortingType) {
+        this.dataType = "".equals(dataType) ? WORD : dataType;
+        this.sortingType = "".equals(sortingType) ? NATURAL : sortingType;
+        sep = " ";
         Scanner scanner = new Scanner(System.in);
-        switch (typeSort) {
-            case LONG: {
-                var list = new ArrayList<Long>();
-                var max_ = Long.MIN_VALUE;
 
+        switch (this.dataType) {
+            case LONG: {
+                type = "numbers";
+                list = new ArrayList<Long>();
+                map = new LinkedHashMap<Long, Integer>();
                 while (scanner.hasNextLong()) {
                     long number = scanner.nextLong();
                     list.add(number);
-                    if (max_ == number) count++;
-                    else if (max_ < number) {
-                        max_ = number;
-                        count = 1;
-                    }
                 }
-                if (sortIntegers) {
-                    list.sort(Comparator.naturalOrder());
-                    String tmp = list.toString().replaceAll(",", "");
-                    max = tmp.substring(1, tmp.length() - 1);
-                } else
-                    max = String.valueOf(max_);
-                size = list.size();
                 break;
             }
             case LINE:
             case WORD: {
-                var list = new ArrayList<String>();
-                if (LINE.equals(typeSort)) {
-                    sep ="\n";
+                list = new ArrayList<String>();
+                map = new LinkedHashMap<String, Integer>();
+                if (LINE.equals(dataType)) {
+                    type = "lines";
+                    sep = "\n";
                     while (scanner.hasNextLine())
                         list.add(scanner.nextLine());
-                } else {
+                } else if (WORD.equals(dataType)) {
+                    type = "words";
                     while (scanner.hasNext()) {
                         list.add(scanner.next());
                     }
                 }
-                for (String s: list) {
-                    if (s.length() == max.length()) count++;
-                    else if (s.length() > max.length()) {
-                        max = s;
-                        count = 1;
-                    }
-                }
-                size = list.size();
                 break;
             }
         }
+    }
 
-        System.out.printf("Total numbers: %d%n", size);
+    private static Map<Long, Integer> sortedMapLong(Map<Long, Integer> map) {
+        Map sorted = new LinkedHashMap<Long, Integer>();
+        var sortedValue = map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (e1, e2) -> e1,
+                                LinkedHashMap::new));
 
-        if (sortIntegers) {
-            System.out.printf("Sorted data: %s%n", max);
+        var sortedKey = map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (e1, e2) -> e1,
+                                LinkedHashMap::new));
+
+        for (var values: sortedValue.entrySet()) {
+            for (var keys: sortedKey.entrySet()) {
+                if (values.getValue() == keys.getValue()) {
+                    sorted.put(keys.getKey(), keys.getValue());
+                    sortedKey.remove(keys.getKey());
+                    break;
+                }
+            }
+        }
+        return sorted;
+    }
+
+    private static Map<String, Integer> sortedMapString(Map<String, Integer> map) {
+        Map sorted = new LinkedHashMap<String, Integer>();
+        var sortedValue = map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (e1, e2) -> e1,
+                                LinkedHashMap::new));
+
+        var sortedKey = map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (e1, e2) -> e1,
+                                LinkedHashMap::new));
+
+        for (var values: sortedValue.entrySet()) {
+            for (var keys: sortedKey.entrySet()) {
+                if (values.getValue() == keys.getValue()) {
+                    sorted.put(keys.getKey(), keys.getValue());
+                    sortedKey.remove(keys.getKey());
+                    break;
+                }
+            }
+        }
+        return sorted;
+    }
+
+    public void sort() {
+        var outStr = "";
+        var size = list.size();
+
+        System.out.printf("Total %s: %d%n", type, size);
+
+        if (NATURAL.equals(sortingType)) {
+            list.sort(Comparator.naturalOrder());
+            outStr = list.toString().replaceAll(", ", " ");
+            outStr = outStr.substring(1, outStr.length() - 1);
+            outStr = outStr.replaceAll(" ", sep);
+
+            System.out.printf("Sorted data: %s%n", outStr);
         } else {
-            percent = (int) (((double) count / (double) size) * 100);
-            System.out.printf("The greatest number:%s%s%s(%d time(s)), %d).%n", sep, max, sep, count, percent);
+            for (Object o : list) {
+                int count;
+                if (LONG.equals(dataType)) {
+                    long curr = (long) o;
+                    count = map.containsKey(curr) ? (int)map.get(curr) + 1 : 1;
+                    map.put(curr, count);
+                } else {
+                    String curr = String.valueOf(o);
+                    count = map.containsKey(curr) ? (int)map.get(curr) + 1 : 1;
+                    map.put(curr, count);
+                }
+            }
+            if (LONG.equals(dataType)) {
+                map = sortedMapLong(map);
+            } else {
+                map = sortedMapString(map);
+            }
+
+            Map<String, Integer> sorted = new LinkedHashMap(map);
+
+            for (var entry: sorted.entrySet()) {
+                int percent = (int) (((double) entry.getValue() / (double) size) * 100);
+                String perc = new StringBuilder().append(percent).append("%").toString();
+                System.out.printf("%s: %d time(s), %s %n", entry.getKey(), entry.getValue(), perc);
+            }
         }
     }
 }
