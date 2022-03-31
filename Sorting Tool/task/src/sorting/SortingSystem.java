@@ -3,12 +3,12 @@ package sorting;
 import java.util.*;
 
 public class SortingSystem {
-    final String LONG = "long";
-    final String LINE = "line";
-    final String WORD = "word";
+    public static final String LONG = "long";
+    public static final String LINE = "line";
+    public static final String WORD = "word";
 
-    final String NATURAL = "natural";
-//    final String BY_COUNT = "byCount";
+    public static final String NATURAL = "natural";
+    public static final String BY_COUNT = "byCount";
 
     private String sep;
     private String type;
@@ -36,7 +36,16 @@ public class SortingSystem {
     public void getData() {
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNext()) {
-            list.add(LINE.equals(dataType) ? scanner.nextLine() : scanner.next());
+            var input = LINE.equals(dataType) ? scanner.nextLine() : scanner.next();
+            if (LONG.equals(dataType)) {
+                try {
+                    Long test = Long.valueOf(input);
+                    list.add(input);
+                } catch (Exception e) {
+                    System.out.printf("\"%s\" is not a long. It will be skipped.", input);
+                }
+            } else
+                list.add(input);
         }
 
     }
