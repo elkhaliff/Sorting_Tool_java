@@ -4,6 +4,8 @@ public class Main {
     public static void main(final String[] args) {
         var dataType = "";
         var sortingType = "";
+        var inputFile = "";
+        var outputFile = "";
         final String errData = "No data type defined!";
         final String errSort = "No sorting type defined!";
 
@@ -36,13 +38,21 @@ public class Main {
                             }
                             break;
                         }
+                        case "-inputFile": {
+                            inputFile = args[++i];
+                            break;
+                        }
+                        case "-outputFile": {
+                            outputFile = args[++i];
+                            break;
+                        }
                         default: {
                             System.out.printf("\"%s\" is not a valid parameter. It will be skipped.%n", args[i]);
                         }
                     }
             }
         }
-        SortingSystem sortSys = new SortingSystem(dataType, sortingType);
+        SortingSystem sortSys = new SortingSystem(dataType, sortingType, inputFile, outputFile);
         sortSys.getData();
         sortSys.sort();
     }
